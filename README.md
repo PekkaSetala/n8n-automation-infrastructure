@@ -79,11 +79,27 @@ This repository documents a complete self-hosted platform built for AI automatio
 
 #### Coolify
 - **Purpose**: Self-hosted PaaS for application management
-- **Features**: 
+- **Features**:
   - Git-based deployments
   - One-click service templates
   - Environment variable management
   - Automatic SSL provisioning
+
+## 🔧 Example Workflows
+
+Built and running on this infrastructure:
+
+### [AI Motorcycle Visual Identifier](docs/workflows/motorcycle-identifier.md)
+Webhook-triggered image analysis pipeline: Image upload → OpenAI Vision → Recommendation engine → Email delivery
+
+**Skills**: Multi-API orchestration, binary data processing, webhook handling, AI integration
+
+### [Selkokielelle - Plain Language Converter](docs/workflows/selkokielelle-converter.md)
+Finnish text simplification workflow: Form submission → GPT-4 transformation → Side-by-side email
+
+**Skills**: Form integration, compliance automation, prompt engineering, accessibility standards
+
+**Why this matters**: These workflows demonstrate real-world integration patterns (webhook → processing → notification) common in enterprise environments, using iPaaS platforms like n8n that translate directly to Zapier, Make, Frends, and MuleSoft.
 
 ## 📊 Technical Stack
 
@@ -107,7 +123,10 @@ This repository documents a complete self-hosted platform built for AI automatio
 │   ├── architecture.md                # Detailed architecture documentation
 │   ├── deployment-guide.md            # Step-by-step deployment instructions
 │   ├── services.md                    # Individual service configurations
-│   └── cloudflare-integration.md      # DNS and proxy setup
+│   ├── cloudflare-integration.md      # DNS and proxy setup
+│   └── workflows/                     # Example workflow documentation
+│       ├── motorcycle-identifier.md   # AI image analysis workflow
+│       └── selkokielelle-converter.md # Text simplification workflow
 ├── configs/
 │   ├── coolify/                       # Coolify configuration examples
 │   ├── traefik/                       # Traefik proxy configs
