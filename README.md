@@ -1,56 +1,67 @@
-# hetzner-homelab-infrastructure
+# Hetzner Infrastructure
 
-Self-hosted AI workflow automation platform on Hetzner Cloud with Cloudflare at the edge.
+Production infrastructure for self-hosted AI services. Runs a multi-service stack on a single Hetzner VPS behind Cloudflare, managed through Coolify with Traefik handling TLS termination and routing.
+
+Built this to run AI workflow automation and an LLM interface without depending on third-party platforms. Ran it as my production environment — the design reflects that: network-isolated services, automated certificate management, health checks with auto-restart, and a tested backup/restore procedure.
 
 ## Architecture
 
 ```
-Internet → Cloudflare (DNS + proxy)
-               └── Traefik (reverse proxy, SSL termination)
-                       ├── Coolify   (PaaS management)
-                       ├── n8n       (workflow automation)
-                       └── Open WebUI (LLM interface)
-                               └── PostgreSQL + Redis
+Internet → Cloudflare (DNS, proxy, DDoS protection)
+               └── Traefik v3.6 (reverse proxy, Let's Encrypt, HTTP/3)
+                       ├── Coolify 4.0    (PaaS — deployment, env management)
+                       ├── n8n            (workflow automation, webhook endpoints)
+                       └── Open WebUI     (multi-provider LLM interface)
+                               └── PostgreSQL 16 + Redis 7
 ```
 
-All services run in isolated Docker bridge networks. Databases have no exposed ports.
+Each service runs in its own Docker bridge network. Databases are internal-only — no exposed ports. Traefik discovers services via Docker labels and provisions TLS certificates automatically.
 
 ## Stack
 
-| Component | Version | Role |
-|-----------|---------|------|
-| Traefik | v3.6 | Reverse proxy, automatic SSL via Let's Encrypt |
-| Coolify | 4.0 | Self-hosted PaaS, container management |
-| n8n | latest | Workflow automation engine |
-| Open WebUI | latest | LLM interface |
-| PostgreSQL | 16 | Persistent storage |
-| Redis | 7 | Caching |
-| Cloudflare | — | DNS, DDoS protection, IP masking |
+| Layer | Component | Purpose |
+|-------|-----------|---------|
+| Edge | Cloudflare | DNS, DDoS mitigation, origin IP masking |
+| Proxy | Traefik v3.6 | Reverse proxy, automatic TLS (Let's Encrypt), HTTP/2 + HTTP/3 |
+| Platform | Coolify 4.0 | Container orchestration, git-based deployments, secret management |
+| Automation | n8n | Workflow engine — webhooks, multi-API orchestration, scheduling |
+| AI | Open WebUI | LLM interface (OpenAI, Anthropic, Ollama) |
+| Data | PostgreSQL 16, Redis 7 | Persistence and caching, per-service isolation |
 
-**Host:** Hetzner VPS — Ubuntu 24.04 LTS, 4 GB RAM (~1.7 GB utilized, 8 services)  
-**Cost:** ~€6.83/month
+**Host:** Hetzner VPS — Ubuntu 24.04 LTS, 4 GB RAM, 8 containers running at ~1.7 GB utilization. ~€7/month.
 
-## Workflows
+## Production Workflows
 
-**AI Motorcycle Visual Identifier** — Webhook receives an image → OpenAI Vision analyzes it → recommendation engine → email sent. ([docs](docs/workflows/motorcycle-identifier.md))
+Two n8n workflows that ran in production, demonstrating multi-API orchestration, prompt engineering, and data transformation pipelines:
 
-**Selkokielelle — Plain Language Converter** — Web form submission triggers a GPT-4 pipeline that rewrites Finnish text into plain language for accessibility. ([docs](docs/workflows/selkokielelle-converter.md))
+**[AI Motorcycle Identifier](docs/workflows/motorcycle-identifier.md)** — Webhook receives an image, passes it through OpenAI Vision for identification, enriches with market data via SerpAPI, and delivers a formatted analysis by email. Five APIs chained: webhook → GPT-4o Vision → OpenRouter → SerpAPI → Gmail.
+
+**[Selkokielelle](docs/workflows/selkokielelle-converter.md)** — Finnish plain language converter. Form submission triggers a GPT-4 pipeline that rewrites complex Finnish into accessible selkokieli following 15+ guidelines from Finnish accessibility standards. Outputs a side-by-side comparison. Relevant to EU Accessibility Directive compliance.
 
 ## Security
 
-- HTTP → HTTPS enforced at Traefik
+- TLS everywhere — HTTP → HTTPS redirect enforced at Traefik
 - Let's Encrypt certificates, auto-renewed
-- Cloudflare masks origin IP
-- Docker bridge network isolation per service group
-- UFW firewall
+- Cloudflare proxy masks origin IP
+- Network isolation — each service stack on its own Docker bridge
+- No database ports exposed to the internet
+- UFW firewall, Docker socket mounted read-only where possible
+- Health checks on all containers with automatic restart
 
-## Docs
+## Operations
 
-- [Getting Started](GETTING-STARTED.md)
-- [Architecture](docs/architecture.md)
-- [Deployment Guide](docs/deployment-guide.md)
-- [Services](docs/services.md)
-- [Cloudflare Integration](docs/cloudflare-integration.md)
+- Automated backup/restore scripts for all Docker volumes and databases
+- Health checks with configurable intervals and retry policies
+- 30-minute RTO with documented recovery procedure
+- Real-time resource monitoring via `docker stats` and Coolify UI
+
+## Documentation
+
+- [Getting Started](GETTING-STARTED.md) — Prerequisites and setup
+- [Architecture](docs/architecture.md) — Network topology, service discovery, data persistence
+- [Deployment Guide](docs/deployment-guide.md) — Step-by-step provisioning
+- [Services](docs/services.md) — Per-service configuration and management
+- [Cloudflare Integration](docs/cloudflare-integration.md) — DNS and proxy setup
 
 ## License
 
