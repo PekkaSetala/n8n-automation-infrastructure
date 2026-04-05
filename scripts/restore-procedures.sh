@@ -141,15 +141,6 @@ if [ -f "$BACKUP_DIR/n8n-data.tar.gz" ]; then
     log "✓ n8n data restored"
 fi
 
-# Open WebUI data
-if [ -f "$BACKUP_DIR/open-webui-data.tar.gz" ]; then
-    docker run --rm \
-        -v open-webui-data:/data \
-        -v "$BACKUP_DIR:/backup" \
-        alpine sh -c "cd / && tar -xzf /backup/open-webui-data.tar.gz"
-    log "✓ Open WebUI data restored"
-fi
-
 #####################################################
 # 7. Restart All Services
 #####################################################

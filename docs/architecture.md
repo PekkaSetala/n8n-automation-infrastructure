@@ -14,7 +14,6 @@ This infrastructure implements a microservices architecture using Docker contain
 - Proxies traffic to Hetzner server (orange cloud enabled)
 - Manages DNS records:
   - `n8n.example.com` → Hetzner server IP
-  - `ui.example.com` → Hetzner server IP
   - `app.example.com` → Hetzner server IP (Coolify dashboard)
 
 ### Edge Layer
@@ -83,23 +82,6 @@ This infrastructure implements a microservices architecture using Docker contain
 - Webhook receivers and processors
 - Scheduled automation tasks
 
-#### 3. Open WebUI (AI Interface)
-
-**Container:**
-- `open-webui-n0o8c8wwko4880co4k0wcwc8`
-
-**Network:** `n0o8c8wwko4880co4k0wcwc8` (isolated bridge network)
-
-**Configuration:**
-- Internal port: 8080
-- External access: `ui.example.com` (via Traefik)
-- Persistent data: `/app/backend/data` (Docker volume)
-
-**Features:**
-- Self-hosted ChatGPT-like interface
-- LLM model experimentation
-- Conversation history storage
-
 ## Data Persistence
 
 ### Docker Volumes
@@ -108,7 +90,6 @@ All persistent data is stored in named Docker volumes:
 ```
 agsg4okcw8gccsk0sgwcggg4_n8n-data              # n8n workflow data
 agsg4okcw8gccsk0sgwcggg4_postgresql-data       # n8n database
-n0o8c8wwko4880co4k0wcwc8_open-webui            # Open WebUI data
 coolify-db                                      # Coolify database
 coolify-redis                                   # Coolify cache
 ```
@@ -158,7 +139,6 @@ labels:
 
 **Supported Domains:**
 - `n8n.example.com`
-- `ui.example.com`
 - `app.example.com`
 
 **Configuration:**
@@ -190,15 +170,6 @@ healthcheck:
   retries: 10
 ```
 
-**Open WebUI:**
-```yaml
-healthcheck:
-  test: curl -f http://127.0.0.1:8080
-  interval: 5s
-  timeout: 30s
-  retries: 10
-```
-
 ## Resource Allocation
 
 **Total System:**
@@ -209,7 +180,6 @@ healthcheck:
 **Container Resource Usage:**
 - Coolify stack: ~600MB
 - n8n + PostgreSQL: ~400MB
-- Open WebUI: ~300MB
 - Traefik: ~100MB
 
 ## Security Architecture
@@ -228,7 +198,6 @@ healthcheck:
 ### Access Control
 - Coolify dashboard requires authentication
 - n8n requires authentication
-- Open WebUI requires authentication
 - Traefik dashboard not publicly exposed
 
 ## Deployment Workflow
@@ -270,7 +239,7 @@ healthcheck:
 ## Disaster Recovery
 
 **Backup Targets:**
-- Docker volumes (n8n data, databases, Open WebUI)
+- Docker volumes (n8n data, databases)
 - Coolify configuration (`/data/coolify/`)
 - SSL certificates (`/data/coolify/proxy/acme.json`)
 - Docker Compose files

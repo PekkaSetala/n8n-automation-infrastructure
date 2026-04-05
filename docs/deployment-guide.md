@@ -119,7 +119,6 @@ In Cloudflare DNS settings, add these A records:
 | Type | Name | Content | Proxy Status | TTL |
 |------|------|---------|--------------|-----|
 | A | n8n | YOUR_SERVER_IP | Proxied (orange) | Auto |
-| A | ui | YOUR_SERVER_IP | Proxied (orange) | Auto |
 | A | app | YOUR_SERVER_IP | Proxied (orange) | Auto |
 
 **Note:** "Proxied" enables Cloudflare's CDN and DDoS protection.
@@ -187,37 +186,7 @@ docker logs n8n-{ID} --tail 50
 docker exec -it postgresql-{ID} psql -U n8n -d n8n -c "SELECT NOW();"
 ```
 
-## Step 5: Deploy Open WebUI
-
-### 5.1 Create Open WebUI Service
-
-1. In Coolify project, click "+ New Resource"
-2. Select "Service" → "Open WebUI"
-3. Configure:
-   - **Name:** open-webui
-   - **Environment:** production
-   - **Domain:** ui.example.com
-
-### 5.2 Configure Open WebUI
-
-**Domains:**
-- Add: `ui.example.com`
-- Enable: "Generate SSL certificate"
-
-**Environment Variables:**
-```
-OLLAMA_BASE_URL=https://api.openai.com/v1
-# Or use local Ollama if installed
-```
-
-### 5.3 Deploy Open WebUI
-
-1. Click "Deploy"
-2. Wait for deployment (~2 minutes)
-3. Access at `https://ui.example.com`
-4. Create account on first visit
-
-## Step 6: Configure Coolify Dashboard Domain
+## Step 5: Configure Coolify Dashboard Domain
 
 ### 6.1 Set Custom Domain for Coolify
 
@@ -243,23 +212,19 @@ http:
 
 Traefik automatically reloads configuration.
 
-## Step 7: Verify Complete Deployment
+## Step 6: Verify Complete Deployment
 
-### 7.1 Test All Services
+### 6.1 Test All Services
 
 | Service | URL | Expected Result |
 |---------|-----|-----------------|
 | n8n | https://n8n.example.com | n8n login page |
-| Open WebUI | https://ui.example.com | Open WebUI interface |
 | Coolify | https://app.example.com:8000 | Coolify dashboard |
 
-### 7.2 Verify SSL Certificates
+### 6.2 Verify SSL Certificates
 ```bash
 # Check n8n certificate
 curl -vI https://n8n.example.com 2>&1 | grep -i "subject:"
-
-# Check Open WebUI certificate
-curl -vI https://ui.example.com 2>&1 | grep -i "subject:"
 ```
 
 All should show Let's Encrypt certificates.
@@ -276,7 +241,7 @@ docker ps --format "table {{.Names}}\t{{.Status}}"
 docker stats --no-stream
 ```
 
-## Step 8: Secure Your Setup
+## Step 7: Secure Your Setup
 
 ### 8.1 Enable Automatic Updates
 ```bash
@@ -383,11 +348,6 @@ ss -tulpn | grep 8000
 - Configure credentials for external services
 - Explore workflow templates
 
-### Optimize Open WebUI
-- Connect to LLM providers (OpenAI, Anthropic, etc.)
-- Configure model settings
-- Set up user access controls
-
 ### Production Hardening
 - Set up regular backups to external storage
 - Configure monitoring and alerting
@@ -410,7 +370,6 @@ ss -tulpn | grep 8000
 - [ ] Coolify installed and accessible
 - [ ] Cloudflare DNS configured
 - [ ] n8n deployed and accessible
-- [ ] Open WebUI deployed and accessible
 - [ ] All SSL certificates working
 - [ ] Firewall rules configured
 - [ ] Backup script created and scheduled

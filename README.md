@@ -2,7 +2,7 @@
 
 Production infrastructure for self-hosted AI services. Runs a multi-service stack on a single Hetzner VPS behind Cloudflare, managed through Coolify with Traefik handling TLS termination and routing.
 
-Built this to run AI workflow automation and an LLM interface without depending on third-party platforms. Ran it as my production environment — the design reflects that: network-isolated services, automated certificate management, health checks with auto-restart, and a tested backup/restore procedure.
+Built this to run AI workflow automation without depending on third-party platforms. Ran it as my production environment — the design reflects that: network-isolated services, automated certificate management, health checks with auto-restart, and a tested backup/restore procedure.
 
 ## Architecture
 
@@ -10,8 +10,7 @@ Built this to run AI workflow automation and an LLM interface without depending 
 Internet → Cloudflare (DNS, proxy, DDoS protection)
                └── Traefik v3.6 (reverse proxy, Let's Encrypt, HTTP/3)
                        ├── Coolify 4.0    (PaaS — deployment, env management)
-                       ├── n8n            (workflow automation, webhook endpoints)
-                       └── Open WebUI     (multi-provider LLM interface)
+                       └── n8n            (workflow automation, webhook endpoints)
                                └── PostgreSQL 16 + Redis 7
 ```
 
@@ -25,7 +24,6 @@ Each service runs in its own Docker bridge network. Databases are internal-only 
 | Proxy | Traefik v3.6 | Reverse proxy, automatic TLS (Let's Encrypt), HTTP/2 + HTTP/3 |
 | Platform | Coolify 4.0 | Container orchestration, git-based deployments, secret management |
 | Automation | n8n | Workflow engine — webhooks, multi-API orchestration, scheduling |
-| AI | Open WebUI | LLM interface (OpenAI, Anthropic, Ollama) |
 | Data | PostgreSQL 16, Redis 7 | Persistence and caching, per-service isolation |
 
 **Host:** Hetzner VPS — Ubuntu 24.04 LTS, 4 GB RAM, 8 containers running at ~1.7 GB utilization. ~€7/month.

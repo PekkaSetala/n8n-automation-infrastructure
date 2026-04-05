@@ -21,7 +21,6 @@
 
 ### 2. Services
 - Deploy n8n workflow automation
-- Deploy Open WebUI for AI
 - Configure domains and SSL
 
 ### 3. Secure
@@ -41,7 +40,6 @@ Start with these in order:
 ## After Setup
 
 - Create n8n workflows
-- Experiment with AI in Open WebUI
 - Deploy additional services
 - Optimize and monitor
 

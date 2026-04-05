@@ -98,29 +98,7 @@ else
 fi
 
 #####################################################
-# 4. Backup Open WebUI Data
-#####################################################
-log "Backing up Open WebUI data..."
-
-OPENWEBUI_CONTAINER=$(docker ps --filter "name=open-webui" --format "{{.Names}}" | head -1)
-
-if [ -n "$OPENWEBUI_CONTAINER" ]; then
-    VOLUME_NAME=$(docker inspect $OPENWEBUI_CONTAINER | \
-        jq -r '.[0].Mounts[] | select(.Destination=="/app/backend/data") | .Name')
-    
-    if [ -n "$VOLUME_NAME" ]; then
-        docker run --rm \
-            -v "$VOLUME_NAME:/data" \
-            -v "$BACKUP_DIR:/backup" \
-            alpine tar -czf "/backup/open-webui-data.tar.gz" /data
-        log "✓ Open WebUI data backed up"
-    fi
-else
-    warn "Open WebUI container not found, skipping"
-fi
-
-#####################################################
-# 5. Backup SSL Certificates
+# 4. Backup SSL Certificates
 #####################################################
 log "Backing up SSL certificates..."
 
@@ -132,7 +110,7 @@ else
 fi
 
 #####################################################
-# 6. Backup Docker Volumes List
+# 5. Backup Docker Volumes List
 #####################################################
 log "Creating Docker volumes inventory..."
 
@@ -140,7 +118,7 @@ docker volume ls > "$BACKUP_DIR/docker-volumes.txt"
 log "✓ Docker volumes list saved"
 
 #####################################################
-# 7. Backup Running Containers Info
+# 6. Backup Running Containers Info
 #####################################################
 log "Saving running containers information..."
 
@@ -149,7 +127,7 @@ docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" \
 log "✓ Container information saved"
 
 #####################################################
-# 8. Create Backup Manifest
+# 7. Create Backup Manifest
 #####################################################
 log "Creating backup manifest..."
 
@@ -164,7 +142,6 @@ Backup Contents:
 - Coolify configuration and data
 - Coolify PostgreSQL database
 - n8n workflow data and database
-- Open WebUI data
 - SSL certificates (acme.json)
 - Docker volumes inventory
 - Container information
@@ -185,7 +162,7 @@ MANIFEST
 log "✓ Manifest created"
 
 #####################################################
-# 9. Calculate Checksums
+# 8. Calculate Checksums
 #####################################################
 log "Calculating checksums..."
 
@@ -194,7 +171,7 @@ sha256sum *.tar.gz *.sql.gz *.json 2>/dev/null > checksums.sha256 || true
 log "✓ Checksums calculated"
 
 #####################################################
-# 10. Clean Old Backups
+# 9. Clean Old Backups
 #####################################################
 log "Cleaning old backups (older than $RETENTION_DAYS days)..."
 
